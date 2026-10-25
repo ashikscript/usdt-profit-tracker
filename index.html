@@ -10,13 +10,14 @@
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js" crossorigin>
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js" crossorigin>
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js" crossorigin>
-<link rel="stylesheet" href="style.css?v=7">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){}</script>
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 <div class="wrap">
   <div class="top">
     <span class="tag">p2p trading + profit tracker</span>
-    <button id="authBtn">Admin login</button>
+    <div class="tr"><button id="themeBtn" title="Light / Dark">☀</button><button id="authBtn">Admin login</button></div>
   </div>
   <h1 id="ttl">USDT profit calculator</h1>
   <p class="sub" id="sub">Calculate your net profit in BDT.</p>
@@ -128,6 +129,6 @@
 </dialog>
 <div class="toast" id="toast"></div>
 
-<script type="module" src="app.js?v=7"></script>
+<script type="module" src="app.js?v=9"></script>
 </body>
 </html>

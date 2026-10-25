@@ -14,6 +14,10 @@ const firebaseConfig = {
 /* ====================================================================================== */
 
 const $=id=>document.getElementById(id);
+/* light / dark theme (remembered on this device) */
+const applyTheme=t=>{document.documentElement.dataset.theme=t;$("themeBtn").textContent=t==="dark"?"☀":"☾"};
+applyTheme(document.documentElement.dataset.theme||"dark");
+$("themeBtn").onclick=()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";applyTheme(t);try{localStorage.setItem("theme",t)}catch(e){}};
 const configured=!firebaseConfig.apiKey.startsWith("PASTE");
 let auth,db,unsub=null,trades=[],isAdmin=false;
 let unsubB=null,xfers=[],bready=false;
@@ -196,11 +200,12 @@ const TZ="Asia/Dhaka";
 const dk=ts=>new Date(ts).toLocaleDateString("en-CA",{timeZone:TZ});          /* YYYY-MM-DD in Dhaka */
 const mk=ts=>dk(ts).slice(0,7);                                              /* YYYY-MM */
 const tz=ts=>new Date(ts).toLocaleTimeString("en-US",{timeZone:TZ,hour:"2-digit",minute:"2-digit"});
-const fl=v=>"৳"+Math.round(v).toLocaleString("en-IN");                       /* 10,00,000 style */
+const fl=v=>"৳"+Math.round(v).toLocaleString("en-IN");
+const fs=v=>v>=100000?"৳"+(+(v/1e5).toFixed(2))+"L":fl(v);   /* 1000000 -> ৳10L */                       /* 10,00,000 style */
 const bname=id=>(BANKS.find(b=>b.id===id)||{name:id}).name;
 const stamp=d=>d===dk(Date.now())?Date.now():new Date(d+"T12:00:00+06:00").getTime();
 const usedOn=(id,day)=>xfers.filter(x=>x.bank===id&&dk(x.t)===day).reduce((s,x)=>s+x.amount,0);
-const resetText=()=>{const ms=86400000-((Date.now()+6*3600000)%86400000);return "Resets at 12:00 AM · in "+Math.floor(ms/3600000)+"h "+pad(Math.floor(ms%3600000/60000))+"m"};
+const resetText=()=>{const ms=86400000-((Date.now()+6*3600000)%86400000);return "Resets in "+Math.floor(ms/3600000)+"h "+pad(Math.floor(ms%3600000/60000))+"m (12 AM)"};
 let lastDay=dk(Date.now()),seededB=false;const openB=new Set();
 
 function bankCards(){
@@ -214,11 +219,11 @@ function bankCards(){
     const u=usedOn(b.id,day);tot+=u;
     const pct=u/b.limit*100,st=pct>=100?"full":pct>=80?"warn":"";
     const c=el("div","bk"+(sel===b.id?" sel":""));
-    const h=el("div","h"),amt=el("span","amt",fl(u));amt.appendChild(el("small",null," / "+fl(b.limit)));h.append(el("span","nm",b.name),amt);
+    const h=el("div","h");h.append(el("span","nm",b.name),el("span","pc",Math.round(pct)+"%"));
+    const amt=el("div","amt",fl(u));amt.appendChild(el("small",null," / "+fs(b.limit)));
     const bar=el("div","bar"),i=el("i",st);i.style.width=Math.min(100,pct)+"%";bar.appendChild(i);
     const left=u>b.limit?"Over by "+fl(u-b.limit):u===b.limit?"Limit full":fl(b.limit-u)+" left";
-    const ft=el("div","ft");ft.append(el("span","left "+st,left),el("span","pc",Math.round(pct)+"%"));
-    c.append(h,bar,ft);
+    c.append(h,amt,bar,el("div","left "+st,left));
     c.onclick=()=>{$("bk").value=b.id;bankCards();bhint()};
     box.appendChild(c);
   });
@@ -249,13 +254,15 @@ function bankDate(){
   if(!d){box.appendChild(el("div","note","Pick a date to see how much was transferred from each bank on that day."));return}
   if(!bready)return;
   let tot=0;
+  const g=el("div","dgrid");
   BANKS.forEach(b=>{
     const u=usedOn(b.id,d);tot+=u;const pct=u/b.limit*100,st=pct>=100?"full":pct>=80?"warn":"";
-    const row=el("div","dbk"),h=el("div","h"),amt=el("span","amt",fl(u));amt.appendChild(el("small",null," / "+fl(b.limit)));
-    h.append(el("span","nm",b.name),amt);
+    const row=el("div","dbk"),h=el("div","h"),amt=el("div","amt",fl(u));amt.appendChild(el("small",null," / "+fs(b.limit)));
+    h.append(el("span","nm",b.name),el("span","pc",Math.round(pct)+"%"));
     const bar=el("div","bar"),i=el("i",st);i.style.width=Math.min(100,pct)+"%";bar.appendChild(i);
-    row.append(h,bar);box.appendChild(row);
+    row.append(h,amt,bar);g.appendChild(row);
   });
+  box.appendChild(g);
   const t=el("div","mrow");t.append(el("span",null,"Total on "+d),el("b",null,fl(tot)));box.appendChild(t);
   xfers.filter(x=>dk(x.t)===d).sort((x,y)=>y.t-x.t).forEach(x=>box.appendChild(xrow(x,false)));
 }
