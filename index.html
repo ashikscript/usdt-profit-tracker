@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 <div class="wrap">
@@ -15,10 +15,12 @@
     <span class="tag">p2p trading + profit tracker</span>
     <button id="authBtn">Admin login</button>
   </div>
-  <h1>USDT profit<br>calculator</h1>
-  <p class="sub">Calculate your net profit in BDT. Trade history is private and visible only to the admin.</p>
+  <h1 id="ttl">USDT profit calculator</h1>
+  <p class="sub" id="sub">Calculate your net profit in BDT.</p>
+<nav class="tabs"><button data-p="calc" class="on">Calculator</button><button data-p="bank" id="tabBank" class="hide">Bank limits</button></nav>
 
-  <div class="sec">Calculator</div>
+  <section id="pg-calc">
+<div class="sec">Calculator</div>
   <div class="card">
     <div class="grid">
       <div class="f"><label class="lbl">Buy price (৳)</label><input id="buy" type="number" inputmode="decimal" step="any" value="127.30"></div>
@@ -62,7 +64,50 @@
     <div id="list"></div>
     <div class="chips"><button id="xl">⬇ Export to Excel</button></div>
   </div>
-  <footer>
+  </section>
+<section id="pg-bank" class="hide">
+<div class="card">
+<div class="stats">
+<div><span class="lbl">Today (Dhaka)</span><b id="bkDate" class="sm">—</b><span class="note" id="bkReset" style="display:block;margin-top:4px"></span></div>
+<div><span class="lbl">Total today</span><b id="bkTot">৳0</b></div>
+</div>
+</div>
+<div class="banks" id="banks"></div>
+<div class="card">
+<div class="lbl" style="margin-bottom:10px">Add transfer</div>
+<div class="grid">
+<div class="f"><label class="lbl">Bank</label><select id="bk"></select></div>
+<div class="f"><label class="lbl">Amount (৳)</label><input id="bamt" type="number" inputmode="decimal" step="any" placeholder="e.g. 500000"></div>
+<div class="f"><label class="lbl">Date</label><input id="bdate" type="date"></div>
+<div class="f"><label class="lbl">Note (optional)</label><input id="bnote" type="text" placeholder="buyer / ref"></div>
+</div>
+<div class="note" id="bhint"></div>
+<button class="pri" id="bkAdd">+ Save transfer</button>
+</div>
+
+<div class="sec">Latest 5 transfers</div>
+<div id="blist"></div>
+
+<div class="sec">Check a date</div>
+<div class="card">
+<div class="f"><label class="lbl">Pick any date</label><input id="cd" type="date"></div>
+<div id="dres" style="margin-top:10px"></div>
+</div>
+
+<div class="sec">Monthly total</div>
+<div class="card">
+<div class="f" style="margin-bottom:14px"><label class="lbl">Month</label><input id="bm" type="month"></div>
+<div class="stats">
+<div><span class="lbl">Total transferred</span><b id="mt">৳0</b></div>
+<div><span class="lbl">Transfers</span><b id="mc">0</b></div>
+<div><span class="lbl">Active days</span><b id="md">0</b></div>
+<div><span class="lbl">Daily average</span><b id="ma">৳0</b></div>
+</div>
+<div id="mbanks" style="margin-top:10px"></div>
+<button class="pri" id="bxl">⬇ Export this month to Excel</button>
+</div>
+</section>
+<footer>
     <div>© <span id="yr">2026</span> Ashik. All rights reserved.</div>
     <div>Designed &amp; built by <b>Ashik</b></div>
   </footer>
@@ -80,6 +125,6 @@
 </dialog>
 <div class="toast" id="toast"></div>
 
-<script type="module" src="app.js?v=2"></script>
+<script type="module" src="app.js?v=5"></script>
 </body>
 </html>
