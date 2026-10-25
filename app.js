@@ -166,8 +166,13 @@ document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{
 });
 
 /* ---------- Excel export ---------- */
-$("xl").onclick=()=>{
+/* Excel library is loaded only when you press Export (keeps the page fast) */
+let xlP=null;
+const loadXLSX=()=>window.XLSX?Promise.resolve():(xlP||(xlP=new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onload=ok;s.onerror=()=>{xlP=null;no()};document.head.appendChild(s)})));
+
+$("xl").onclick=async()=>{
   const L=filtered();if(!L.length){toast("Nothing to export");return}
+  try{await loadXLSX()}catch(e){toast("Could not load Excel tool");return}
   const rows=L.map(x=>({"Date":ymd(new Date(x.t)),"Time":tm(x.t),"Buy price":x.buy,"Sale price":x.sell,"Fee %":x.fee,"USDT qty":x.qty,"Net profit (BDT)":+x.profit.toFixed(2)}));
   rows.push({"Date":"TOTAL","Net profit (BDT)":+L.reduce((s,x)=>s+x.profit,0).toFixed(2)});
   const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();
@@ -284,9 +289,10 @@ $("bkAdd").onclick=async()=>{
   addDoc(collection(db,"bankTransfers"),{t:stamp(d),bank:id,amount:a,note:$("bnote").value.trim()}).catch(()=>toast("Could not save"));
   $("bamt").value="";$("bnote").value="";toast("Transfer saved ✓");
 };
-$("bxl").onclick=()=>{
+$("bxl").onclick=async()=>{
   const m=$("bm").value||mk(Date.now()),L=xfers.filter(x=>mk(x.t)===m).slice().reverse();
   if(!L.length){toast("Nothing to export");return}
+  try{await loadXLSX()}catch(e){toast("Could not load Excel tool");return}
   const rows=L.map(x=>({"Date":dk(x.t),"Time":tz(x.t),"Bank":bname(x.bank),"Amount (BDT)":x.amount,"Note":x.note||""}));
   rows.push({"Date":"TOTAL","Amount (BDT)":L.reduce((s,x)=>s+x.amount,0)});
   const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();
